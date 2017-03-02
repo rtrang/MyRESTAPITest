@@ -1,0 +1,288 @@
+
+
+package com.hp.ssmc.pianoui.regression.provisioning.US12013;
+
+import com.hp.piano.test.ui.elements.Table;
+import com.hp.ssmc.pianoui.BaseTest;
+import com.hp.ssmc.pianoui.helper.*;
+import com.hp.tpd.test.helpers.Systems;
+import com.hp.tpd.test.helpers.TestHelper;
+import com.hp.tpd.test.helpers.Utility;
+import com.hp.tpd.test.uipiano.screens.blockpersona.virtualvolumes.VirtualVolumesPanel;
+import org.apache.commons.lang.RandomStringUtils;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runners.Parameterized;
+
+import java.io.File;
+import java.lang.reflect.Field;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static com.hp.piano.test.ui.elements.Globals.browser;
+import static com.hp.tpd.test.helpers.Utility.*;
+import static com.hp.tpd.test.uipiano.SSMCGlobals.ssmc;
+
+public class convertVV extends BaseTest {
+    static Systems primarySystem = null;
+    static String primarySystemName = null;
+    static Systems systemName = Systems.E2ESystem;
+    static SSMCUIViewHelper ssmcUIViewHelper = new SSMCUIViewHelper();
+    CPGHelper cpgHelper = new CPGHelper();
+    static private VirtualVolumesPanel vvsPanel = ssmc.blockPersona.virtualVolumes;
+    static private Table vvsTable = vvsPanel.table;
+    VirtualVolumeHelper vvHelper = new VirtualVolumeHelper();
+    CLIDataSetup cliDataSetup = new CLIDataSetup(systemName);
+    ConvertVolumeData convertData;
+    boolean testResult = true;
+    String cpgName = "TC9147_cpg_" + RandomStringUtils.random(3, true, true);
+    String vvName = "TC9147_vv_" + RandomStringUtils.random(2, true, true);
+    ArrayList<String> vvList = new ArrayList<String>();
+    ArrayList<String> cpgList = new ArrayList<String>();
+    private String FAILURE = "**FAILURE - ";
+    int minSize = 100000;
+    String vvSize = "16g";
+    int numberOfCPG = 2;
+    int numberOfvv=2;
+
+    public convertVV(String browserType) {
+        super(browserType);
+    }
+
+    @Parameterized.Parameters(name = " running with {0}")
+    public static Collection<Object[]> getParameters() {
+        //property File path
+        propertyFileDirectory = Utility.getBasePath() + File.separator + "e2e" + File.separator + "properties";
+        propertyFileName = "e2e.properties";
+        try {
+            Systems.E2ESystem.setHostname(getPropertyValue(propertyFileName, "array1.name"));
+            Systems.E2ESystem.setUsername(getPropertyValue(propertyFileName, "array1.username"));
+            Systems.E2ESystem.setPassword(getPropertyValue(propertyFileName, "array1.password"));
+            primarySystemName = CLIDataSetup.getStorServName(Systems.E2ESystem);
+            primarySystem = Systems.E2ESystem;
+
+        } catch (Exception e) {
+            log("Exception in getting the Systems value from 'Systems' file");
+        }
+        return BaseTest.getParameters();
+    }
+
+    @Test
+    public void invalid_TC9147_Provisioning_ConvertVirtualVolume() {
+        String inservName = SecurityHelper.getStorServName(systemName);
+        //     String vvSize = "1";
+
+        CPGData cpgData = new CPGData();
+        VirtualVolumeData vvData = new VirtualVolumeData();
+        convertData = new ConvertVolumeData();
+
+        String testDescription = "This test uses " + browserType + " Provisioning Regression - Convert VV\n"+
+                "Step1: Converting Virtual Volume thin to dedup=yes and compression=yes\n"+
+                "Step2: Converting Virtual Volume thin to dedup=no and compression=no\n"+
+                "Step3: Converting Virtual Volume thin to dedup=yes and compression=no\n"+
+                "Step3: Converting Virtual Volume thin to dedup=no and compression=yes\n";
+
+        logTestHeader(getTestName(), testDescription);
+        //The below code is needed to address the unicode issues for the character "__"
+        try {
+            System.setProperty("file.encoding", "UTF-8");
+            Field charset = Charset.class.getDeclaredField("defaultCharset");
+            charset.setAccessible(true);
+            charset.set(null, null);
+        } catch (Exception e) {
+        }
+
+        try {
+            log("========================================================================================");
+            log("Setting System Filter:" + inservName);
+            log("========================================================================================");
+            testResult = ssmcUIViewHelper.setFilterForSystem(inservName) && testResult;
+            Assert.assertTrue("Setting filter for system " + inservName + " failed", testResult);
+            log("Filter setting for systemName " + inservName + " is done");
+            log("========================================================================================");
+            log("Setup test objects");
+            log("========================================================================================");
+            String showSSDr5Space = "showspace -t r5 -ha mag -p -devtype SSD";
+            if (!VerifyFreeSpace(showSSDr5Space)) {
+                log(FAILURE + "Not enough SSD available space to run this test");
+                throw new Exception();
+            }
+            setupTestObjects();
+
+            log("========================================================================================");
+            log("Step1: Converting Virtual Volume " +ProvisioningConstants.ConversionTypeThin + " Dedup : " +ProvisioningConstants.DEDUP_YES+ " Compression : " +ProvisioningConstants.COMPRESSION_YES);
+            log("========================================================================================");
+            convertData.setName(vvList.get(0));
+            convertData.setSystem(primarySystemName);
+            convertData.setProvisioning(ProvisioningConstants.ConversionTypeThin);
+            convertData.setDedup(ProvisioningConstants.DEDUP_YES);
+            convertData.setCompression(ProvisioningConstants.COMPRESSION_YES);
+            vvHelper.navigateToVirtualVolumesPanel();
+            vvHelper.setTableFilter(vvList.get(0));
+            testResult = vvHelper.convertVirtualVolume(convertData) && testResult;
+            Assert.assertTrue("Virtual Volume " + vvList.get(0) + " failed to convert from dedup provisioned to thinly provisioned", testResult);
+            log("Virtual Volume " + vvList.get(0) + " converted successfully from dedup provisioned to thinly provisioned");
+
+            log("========================================================================================");
+            log("Step2: Converting Virtual Volume " +ProvisioningConstants.ConversionTypeThin + " Dedup : " +ProvisioningConstants.DEDUP_NO+ " Compression : " +ProvisioningConstants.COMPRESSION_NO);
+            log("========================================================================================");
+            convertData.setName(vvList.get(0));
+            convertData.setSystem(primarySystemName);
+            convertData.setProvisioning(ProvisioningConstants.ConversionTypeThin);
+            convertData.setDedup(ProvisioningConstants.DEDUP_NO);
+            convertData.setCompression(ProvisioningConstants.COMPRESSION_NO);
+            vvHelper.navigateToVirtualVolumesPanel();
+            vvHelper.setTableFilter(vvList.get(0));
+            testResult = vvHelper.convertVirtualVolume(convertData) && testResult;
+            Assert.assertTrue("Virtual Volume " + vvList.get(0) + " failed to convert from dedup provisioned to thinly provisioned", testResult);
+            log("Virtual Volume " + vvList.get(0) + " converted successfully from dedup provisioned to thinly provisioned");
+
+            log("========================================================================================");
+            log("Step3: Converting Virtual Volume " +ProvisioningConstants.ConversionTypeThin + " Dedup : " +ProvisioningConstants.DEDUP_YES+ " Compression : " +ProvisioningConstants.COMPRESSION_NO);
+            log("========================================================================================");
+            convertData.setName(vvList.get(0));
+            convertData.setSystem(primarySystemName);
+            convertData.setProvisioning(ProvisioningConstants.ConversionTypeThin);
+            convertData.setDedup(ProvisioningConstants.DEDUP_YES);
+            convertData.setCompression(ProvisioningConstants.COMPRESSION_NO);
+            vvHelper.navigateToVirtualVolumesPanel();
+            vvHelper.setTableFilter(vvList.get(0));
+            testResult = vvHelper.convertVirtualVolume(convertData) && testResult;
+            Assert.assertTrue("Virtual Volume " + vvList.get(0) + " failed to convert from dedup provisioned to thinly provisioned", testResult);
+            log("Virtual Volume " + vvList.get(0) + " converted successfully from dedup provisioned to thinly provisioned");
+
+            log("========================================================================================");
+            log("Step4: Converting Virtual Volume " +ProvisioningConstants.ConversionTypeThin + " Dedup : " +ProvisioningConstants.DEDUP_NO+ " Compression : " +ProvisioningConstants.COMPRESSION_YES);
+            log("========================================================================================");
+            convertData.setName(vvList.get(0));
+            convertData.setSystem(primarySystemName);
+            convertData.setProvisioning(ProvisioningConstants.ConversionTypeThin);
+            convertData.setDedup(ProvisioningConstants.DEDUP_NO);
+            convertData.setCompression(ProvisioningConstants.COMPRESSION_YES);
+            vvHelper.navigateToVirtualVolumesPanel();
+            vvHelper.setTableFilter(vvList.get(0));
+            testResult = vvHelper.convertVirtualVolume(convertData) && testResult;
+            Assert.assertTrue("Virtual Volume " + vvList.get(0) + " failed to convert from dedup provisioned to thinly provisioned", testResult);
+            log("Virtual Volume " + vvList.get(0) + " converted successfully from dedup provisioned to thinly provisioned");
+
+        } catch (Exception e) {
+            testResult = false;
+            log("Exception occured. See the Screenshot for details");
+            e.printStackTrace();
+        }catch (AssertionError e){
+            testResult = false;
+            log("AssertionError occured. check stackstrace for details");
+            e.printStackTrace();
+        }
+        finally{
+            cleanUp(cliDataSetup);
+        }
+        if (testResult) {
+            testPass(getTestName());
+        } else {
+            testFail(getTestName());
+        }
+    }
+
+    public void setupTestObjects() throws Exception {
+        log("Set up test objects");
+        if (!isCPGcreated(cpgName)) {
+            log(FAILURE + "Fail to create CPGs from CLI");
+            throw new Exception();
+        }
+        if (!isVVcreated(vvName)) {
+            log(FAILURE + "Fail to create CPGs from CLI");
+            throw new Exception();
+        }
+    }
+
+    public boolean isCPGcreated(String cpgName) {
+        boolean returnResult = true;
+        objectGenerator(cpgName);
+        for (int index=0; index<cpgList.size(); index++) {
+            log("Verify created CPG in super Table " + cpgList.get(index));
+            if (!cpgHelper.waitForCLIDataToAppearInCPGTable(cpgList.get(index))) {
+                log(FAILURE + " CPG " +cpgList.get(index) + " is not in super table");
+                returnResult = false;
+            }
+        }
+        return returnResult;
+    }
+
+    public boolean isVVcreated(String vvName) {
+        boolean returnResult = true;
+        objectGenerator(vvName);
+        for (int index = 0; index < vvList.size(); index++) {
+            log("Verify created VV in super Table " + vvList.get(index));
+            if (!vvHelper.waitForCLIDataToAppearInVVTable(vvList.get(index))) {
+                log(FAILURE + "VV " +vvList.get(index) + " is not in super table");
+                returnResult = false;
+            }
+        }
+        return returnResult;
+    }
+
+    public void objectGenerator(String objectName){
+        log("Creating test objects from cli...");
+        boolean returnResult = false;
+        nameGenerator(objectName);
+        if (objectName.equals(vvName)) {
+            for (int index = 0; index < vvList.size(); index++) {
+                TestHelper.CLI(primarySystem, "createvv -tpvv " + cpgList.get(index) + " " + vvList.get(index) + " " + vvSize);
+            }
+        }
+        if (objectName.equals(cpgName)){
+            for (int index = 0; index < cpgList.size(); index++) {
+                TestHelper.CLI(primarySystem, "createcpg -f -ha mag -p -devtype SSD " + cpgList.get(index));
+            }
+        }
+    }
+
+    public void nameGenerator(String objName){
+        log("Assign object names to list...");
+        if (objName.equals(vvName)) {
+            for (int index = 0; index < numberOfvv; index++) {
+                vvList.add(objName + "." + index);
+            }
+        }
+        if (objName.equals(cpgName)) {
+            for (int index = 0; index < numberOfCPG; index++) {
+                cpgList.add(objName + "." + index);
+            }
+        }
+    }
+
+    public boolean vvExistInSuperTable(String vv) throws Exception {
+        boolean returnResult = true;
+        if (!vvsTable.isItemAppearinTable(vv, primarySystemName, 120)) {
+            log("VV is not in super table " +vvName);
+            returnResult = false;
+        }
+        return returnResult;
+    }
+
+    public void cleanUp (CLIDataSetup cliDataSetup){
+        if(!testResult){
+            log("Screenshot taken");
+            browser.takeScreenShot(getTestName() + "__" + getTestName());
+        }
+        log("Cleanup activity");
+        TestHelper.CLI(primarySystem, "removevv -f TC9147_*");
+        TestHelper.CLI(primarySystem, "removecpg -f -ld -pat TC9147_*");
+        TestHelper.CLI(primarySystem, "showvv TC9147_*");
+        TestHelper.CLI(primarySystem, "showcpg TC9147_*");
+    }
+
+    public boolean VerifyFreeSpace(String showSpaceCommand){
+        boolean returnResult = false;
+        String freeSpace = cliDataSetup.getFreeSpaceFromCLI(primarySystem,showSpaceCommand);
+        int actualFreeSpace = Integer.parseInt(freeSpace);
+//      proceed if more than 100GB
+        if (actualFreeSpace > minSize) {
+            log("Free space is: " +actualFreeSpace);
+            returnResult = true;
+        }
+        return returnResult;
+    }
+}
