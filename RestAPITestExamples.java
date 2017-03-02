@@ -1,6 +1,3 @@
-/*
- * (C) Copyright 2002-2014 Hewlett-Packard Development Company, L.P.
- */
 
 package com.hp.ssmc.svt.testsecurity;
 
@@ -109,7 +106,7 @@ public class UserPasswordTestCases {
 
 
 
-    // 3PAR_AO user should be able to change its own password
+    // AA user should be able to change its own password
     @Test
     public void AOUserChangeOwnPassword() throws Exception {
         String username = RandomStringUtils.random(5, true, true);
@@ -130,7 +127,7 @@ public class UserPasswordTestCases {
         DeleteUser(username, UserURI);
     }
 
-    // 3PAR_RM user should be able to change its own password
+    // BB user should be able to change its own password
     @Test
     public void RMUserChangeOwnPassword() throws Exception {
         String username = RandomStringUtils.random(5, true, true);
@@ -151,7 +148,7 @@ public class UserPasswordTestCases {
         DeleteUser(username, UserURI);
     }
 
-    // Basic_edit user should be able to change its own password
+    // CC user should be able to change its own password
     @Test
     public void BEUserChangeOwnPassword() throws Exception {
         String username = RandomStringUtils.random(5, true, true);
@@ -172,7 +169,7 @@ public class UserPasswordTestCases {
         DeleteUser(username, UserURI);
     }
 
-    // Browse user should be able to change its own password
+    // DD user should be able to change its own password
     @Test
     public void BrowseUserChangeOwnPassword() throws Exception {
         String username = RandomStringUtils.random(5, true, true);
