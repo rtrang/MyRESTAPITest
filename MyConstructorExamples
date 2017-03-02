@@ -1,0 +1,302 @@
+
+package com.hp.ssmc.pianoui.helper;
+
+public class ConvertVolumeData {
+    String name;
+    String newName;
+    String domain;
+    String cpg;
+    String size;
+    String sizeUnits;
+    boolean result;
+    String system;
+    String provisioning;
+    String compression;
+    String dedup;
+    String expectedStatus;  // deprecated
+    String expectedVolumeStatus;  // status icon in VV table
+    String expectedActivityStatus;  // status icon in activity table
+    boolean originalVolumesDelete;
+    boolean originalVolumesSavePrefix;
+    String vvPrefix = "Prefix";
+    String vvSuffix = "Suffix";
+    boolean originalVolumesSaveNewName;
+    boolean currentCPG;
+    boolean moveToCPG;
+    boolean checkDefaultCPG = false;
+    boolean checkCopyCPG = false;
+    boolean checkName = false;
+    boolean checkCompression = false;
+    boolean checkDedup = false;
+    boolean checkSystem = false;
+    boolean checkDomain = false;
+    boolean checkType = false;
+    boolean checkMode = false;
+    boolean checkRaid = false;
+    String type;
+    String mode;
+    String raid;
+    boolean enableAdvancedOptions;
+
+    public static String STATUS_ERROR = "hp-status-error";
+    public static String STATUS_OK = "hp-status-ok";
+    public static String STATUS_WARNING = "hp-status-warning";
+
+    public ConvertVolumeData ()
+    {
+        enableAdvancedOptions = false;
+    }
+
+    public boolean getOriginalVolumesDelete() {
+        return originalVolumesDelete;
+    }
+    public boolean getOriginalVolumesSavePrefix() {
+        return originalVolumesSavePrefix;
+    }
+    public boolean getOriginalVolumesSaveNewName() {
+        return originalVolumesSaveNewName;
+    }
+
+    public boolean getCurrentCPG() {
+        return currentCPG;
+    }
+
+    public boolean getMoveToCPG() {
+        return moveToCPG;
+    }
+
+    public void setResult (boolean vvresult)
+    {
+        result = vvresult;
+    }
+    public void setName (String vvName)
+    {
+        name = vvName;
+    }
+    public void setNewName (String newName)
+    {
+        newName = newName;
+    }
+    public void setCPG (String cpgName)
+    {
+        cpg = cpgName;
+    }
+    public void setSize (String vvSize)
+    {
+        size = vvSize;
+    }
+    public void setSizeUnit (String vvSetSizeUnits)
+    {
+        sizeUnits = vvSetSizeUnits;
+    }
+    public void setSystem (String vvSystem)
+    {
+        system = vvSystem;
+    }
+    public void setProvisioning (String vvProvisioning)
+    {
+        provisioning = vvProvisioning;
+    }
+    public void setCompression (String vvCompression)
+    {
+        compression = vvCompression;
+    }
+    public void setDedup (String vvDedup)
+    {
+        dedup = vvDedup;
+    }
+
+
+    public void setExpectedStatus (String vvExpectedStatus)
+    {
+        expectedStatus = vvExpectedStatus;
+    }
+    public void setExpectedVolumeStatus (String vvExpectedStatus)
+    {
+        expectedVolumeStatus = vvExpectedStatus;
+    }
+    public void setExpectedActivityStatus (String vvExpectedStatus)
+    {
+        expectedActivityStatus = vvExpectedStatus;
+    }
+
+
+    public void setUserCPG (String vvUserCPG)
+    {
+        cpg = vvUserCPG;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
+    public void setPrefix(String vvPrefix) {
+        this.vvPrefix = vvPrefix;
+    }
+    public void setSuffix(String vvSuffix) {
+        this.vvSuffix = vvSuffix;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+    public String getPrefix() {
+        return vvPrefix;
+    }
+    public String getSuffix() {
+        return vvSuffix;
+    }
+
+    public String getSystem ()
+    {
+        return system;
+    }
+    public String getName ()
+    {
+        return name;
+    }
+    public String getNewName ()
+    {
+        return newName;
+    }
+    public String getCPG ()
+    {
+        return cpg;
+    }
+    public String getSize ()
+    {
+        return size;
+    }
+    public String getSizeUnits ()
+    {
+        return sizeUnits;
+    }
+    public boolean getResult ()
+    {
+        return result;
+    }
+    public String getProvisioning ()
+    {
+        return provisioning;
+    }
+    public String getCompression ()
+    {
+        return compression;
+    }
+    public String getDedup ()
+    {
+        return dedup;
+    }
+
+    public String getUserCPG ()
+    {
+        return cpg;
+    }
+
+
+    public boolean getCheckName() {
+        return checkName;
+    }
+
+
+
+    public void setCheckName(boolean checkName) {
+        this.checkName = checkName;
+    }
+
+    public boolean getCheckCompression() {
+        return checkCompression;
+    }
+
+    public boolean getCheckDedup() {
+        return checkDedup;
+    }
+
+    public void setCheckCompression(boolean checkCompression) {
+        this.checkCompression = checkCompression;
+    }
+    public void setCheckDedup(boolean checkDedup) {
+        this.checkDedup = checkDedup;
+    }
+
+    public boolean getCheckSystem() {
+        return checkSystem;
+    }
+
+    public void setCheckSystem(boolean checkSystem) {
+        this.checkSystem = checkSystem;
+    }
+
+
+
+    public boolean getCheckDomain() {
+        return checkDomain;
+    }
+
+    public void setCheckDomain(boolean checkDomain) {
+        this.checkDomain = checkDomain;
+    }
+
+    public boolean getCheckType() {
+        return checkType;
+    }
+
+    public void setCheckType(boolean checkType) {
+        this.checkType = checkType;
+    }
+
+    public boolean getCheckMode() {
+        return checkMode;
+    }
+
+    public void setCheckMode(boolean checkMode) {
+        this.checkMode = checkMode;
+    }
+
+    public boolean getCheckRaid() {
+        return checkRaid;
+    }
+
+    public void setCheckRaid(boolean checkRaid) {
+        this.checkRaid = checkRaid;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public String getRaid() {
+        return raid;
+    }
+
+    public void setRaid(String raid) {
+        this.raid = raid;
+    }
+
+    public boolean getCheckDefaultCPG() {
+        return checkDefaultCPG;
+    }
+    public void setCheckDefaultCPG(boolean checkDefaultCPG) {
+        this.checkDefaultCPG = checkDefaultCPG;
+    }
+
+    public void setCheckCopyCPG(boolean checkCopyCPG) {
+        this.checkCopyCPG = checkCopyCPG;
+    }
+    public boolean getCheckCopyCPG() {
+        return checkCopyCPG;
+    }
+
+}
